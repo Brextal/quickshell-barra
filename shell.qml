@@ -134,8 +134,9 @@ ShellRoot {
                     id: clockText
                     anchors.centerIn: parent
                     text: Qt.formatDateTime(clock.date, "hh:mm")
-                    color: "#f5e2c5"
+                    color: "#3dd1b0"
                     font.pixelSize: 13
+                    font.bold: true
                 }
             }
 
