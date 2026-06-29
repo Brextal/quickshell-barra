@@ -19,7 +19,7 @@ Column {
 
     signal refreshRequested()
 
-    Text { width: parent.width; color: "#888"; font.pixelSize: 10; text: "\uf1eb Red"; font.family: "Symbols Nerd Font" }
+    Text { width: parent.width; color: "#ffffff"; font.pixelSize: 10; text: "\uf1eb Red"; font.family: "Symbols Nerd Font" }
 
     Item {
         width: parent.width; height: 30
@@ -49,18 +49,18 @@ Column {
                     text: connType === "wifi" ? "WiFi · Señal " + connSignal + "%"
                         : connType === "ethernet" ? "Cable de red"
                         : "Sin conexión"
-                    color: "#888"; font.pixelSize: 10
+                    color: "#ffffff"; font.pixelSize: 10
                 }
             }
         }
         Rectangle {
             anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-            width: 80; height: 22; radius: 6; color: "#4a2a2a"
+            width: 80; height: 22; radius: 6; color: "#1a3a2a"
             visible: connType === "wifi"
             Text {
                 anchors.centerIn: parent
                 text: "Desconectar"
-                color: "#f55"; font.pixelSize: 10
+                color: "#3dd1b0"; font.pixelSize: 10
             }
             MouseArea {
                 anchors.fill: parent; cursorShape: Qt.PointingHandCursor
@@ -70,12 +70,12 @@ Column {
     }
 
     Rectangle {
-        width: parent.width; height: 24; radius: 6; color: "#1a1a2a"
+        width: parent.width; height: 24; radius: 6; color: "#331a1b26"
         visible: connType === "wifi" || connType === "none"
         Text {
             anchors.left: parent.left; anchors.leftMargin: 8; anchors.verticalCenter: parent.verticalCenter
             text: showNetworks ? "▲ Ocultar redes" : "▼ Redes disponibles"
-            color: "#aaaaaa"; font.pixelSize: 11
+            color: "#ffffff"; font.pixelSize: 11
         }
         MouseArea {
             anchors.fill: parent; cursorShape: Qt.PointingHandCursor
@@ -105,7 +105,7 @@ Column {
                     width: parent.width; height: 26
                     Rectangle {
                         anchors.fill: parent; radius: 6
-                        color: ma.containsMouse ? "#2a2a3a" : "transparent"
+                        color: ma.containsMouse ? "#18ffffff" : "transparent"
                     }
                     Row {
                         anchors.verticalCenter: parent.verticalCenter; spacing: 6
@@ -138,7 +138,7 @@ Column {
                                 if (s.indexOf("WEP") >= 0) return "WEP"
                                 return s ? "Segura" : "Abierta"
                             }
-                            color: "#808080"; font.pixelSize: 9
+                            color: "#ffffff"; font.pixelSize: 9
                         }
                     }
                     MouseArea {
@@ -158,7 +158,7 @@ Column {
 
     Rectangle {
         width: parent.width; height: connectSsid ? 56 : 0
-        radius: 8; color: "#1a1a2a"; clip: true
+        radius: 8; color: "#4d1a1b26"; clip: true
         visible: connectSsid !== ""
         onVisibleChanged: if (visible) Qt.callLater(() => pwInput.forceActiveFocus())
         Behavior on height { NumberAnimation { duration: 150 } }
@@ -186,7 +186,7 @@ Column {
                     Text {
                         anchors.fill: parent; anchors.margins: 4
                         text: "Contraseña"
-                        color: "#666"; font.pixelSize: 11
+                        color: "#ffffff"; font.pixelSize: 11
                         visible: pwInput.text.length === 0 && !pwInput.activeFocus
                     }
                 }
@@ -206,8 +206,8 @@ Column {
                     }
                 }
                 Rectangle {
-                    width: 40; height: 26; radius: 6; color: "#3a3a3a"
-                    Text { anchors.centerIn: parent; text: "✕"; color: "#aaaaaa"; font.pixelSize: 11 }
+                    width: 40; height: 26; radius: 6; color: "transparent"
+                    Text { anchors.centerIn: parent; text: "✕"; color: "#ffffff"; font.pixelSize: 11 }
                     MouseArea {
                         anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                         onClicked: { connectSsid = ""; connectPassword = "" }

@@ -23,7 +23,7 @@ ShellRoot {
 
         property bool showingWorkspaces: false
         property bool flashActive: false
-        property string flashColorValue: "#aa1a1b26"
+        property string flashColorValue: "#331a1b26"
 
         function flashColor(color) {
             flashActive = true
@@ -41,7 +41,7 @@ ShellRoot {
             id: hideTimer
             interval: 1500
             onTriggered: {
-                window.flashColor("#aa4a3a1e")
+                window.flashColor("#4d4a3a1e")
                 window.showingWorkspaces = false
             }
         }
@@ -69,11 +69,11 @@ ShellRoot {
             bottomLeftRadius: root.showingPanel ? 0 : 14
             bottomRightRadius: root.showingPanel ? 0 : 14
             color: window.flashActive ? window.flashColorValue
-                   : root.showingPanel ? "#cc1a1b26"
-                   : "#aa1a1b26"
+                   : root.showingPanel ? "#4d1a1b26"
+                   : "#331a1b26"
             border {
-                color: "transparent"
-                width: 0
+                color: "#1affffff"
+                width: 1
             }
 
             Behavior on width {
@@ -206,7 +206,7 @@ ShellRoot {
             target: Hyprland
             function onFocusedWorkspaceChanged() {
                 if (!window.showingWorkspaces) {
-                    window.flashColor("#aa3a1b4e")
+                    window.flashColor("#4d3a1b4e")
                 }
                 window.showingWorkspaces = true
                 hideTimer.restart()

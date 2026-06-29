@@ -14,8 +14,8 @@ Item {
     }
     Rectangle {
         anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
-        width: 22; height: 22; radius: 6; color: "#2a2a3a"
-        Text { anchors.centerIn: parent; text: "✕"; color: "#aaaaaa"; font.pixelSize: 12 }
+        width: 22; height: 22; radius: 6; color: "transparent"
+        Text { anchors.centerIn: parent; text: "✕"; color: "#ffffff"; font.pixelSize: 12 }
         MouseArea {
             anchors.fill: parent; cursorShape: Qt.PointingHandCursor
             onClicked: headerRoot.closeClicked()

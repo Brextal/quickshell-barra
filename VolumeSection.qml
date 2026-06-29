@@ -11,7 +11,7 @@ Column {
     property real volumeValue: 1
     property bool volumeMuted: false
 
-    Text { width: parent.width; color: "#888"; font.pixelSize: 10; text: "\uf028 Volumen"; font.family: "Symbols Nerd Font" }
+    Text { width: parent.width; color: "#ffffff"; font.pixelSize: 10; text: "\uf028 Volumen"; font.family: "Symbols Nerd Font" }
 
     Row {
         width: parent.width; height: 34; spacing: 8
@@ -66,7 +66,7 @@ Column {
         Text {
             anchors.verticalCenter: parent.verticalCenter
             width: 36; text: Math.round(volRoot.volumeValue * 100) + "%"
-            color: "#aaaaaa"; font.pixelSize: 11; horizontalAlignment: Text.AlignRight
+            color: "#ffffff"; font.pixelSize: 11; horizontalAlignment: Text.AlignRight
         }
     }
 

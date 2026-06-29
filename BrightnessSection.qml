@@ -12,7 +12,7 @@ Column {
     property bool hasDdcutil: false
     property bool hasBrightness: false
 
-    Text { width: parent.width; color: "#888"; font.pixelSize: 10; text: "\uf185 Brillo"; font.family: "Symbols Nerd Font" }
+    Text { width: parent.width; color: "#ffffff"; font.pixelSize: 10; text: "\uf185 Brillo"; font.family: "Symbols Nerd Font" }
 
     Row {
         width: parent.width; height: 34; spacing: 8
@@ -47,14 +47,14 @@ Column {
         Text {
             anchors.verticalCenter: parent.verticalCenter
             width: 36; text: (brightRoot.hasDdcutil || brightRoot.hasBrightness) ? Math.round(brightRoot.brightnessValue * 100) + "%" : "—"
-            color: "#aaaaaa"; font.pixelSize: 11; horizontalAlignment: Text.AlignRight
+            color: "#ffffff"; font.pixelSize: 11; horizontalAlignment: Text.AlignRight
         }
     }
 
     Text {
         visible: !brightRoot.hasDdcutil && !brightRoot.hasBrightness
         text: "⚠️ Instala 'brightnessctl' o 'ddcutil' para controlar brillo"
-        color: "#888"; font.pixelSize: 9; wrapMode: Text.WordWrap; width: parent.width
+        color: "#ffffff"; font.pixelSize: 9; wrapMode: Text.WordWrap; width: parent.width
     }
 
     Process {

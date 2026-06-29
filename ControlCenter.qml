@@ -36,11 +36,11 @@ PopupWindow {
     Rectangle {
         id: bg
         anchors.fill: parent
-        color: "#cc1a1b26"
+        color: "#4d1a1b26"
         radius: 14
         topLeftRadius: 0
         topRightRadius: 0
-        border { color: "#2a2a3a"; width: 1 }
+        border { color: "#1affffff"; width: 1 }
         focus: true
         Keys.onEscapePressed: root.visible = false
         Behavior on opacity {
