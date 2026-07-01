@@ -12,6 +12,8 @@ Estilo **vidrio empañado (glassmorphism)** — fondos blancos traslúcidos, bor
 - `nmcli` (NetworkManager) para la sección de red
 - `brightnessctl` para el control de brillo
 - `pactl` / `pulseaudio-utils` para el control de volumen
+- `mpv` + `mpv-mpris` para reproducción musical con MPRIS
+- `zenity` para selector de carpetas
 - `hyprlock` para bloquear sesión
 - `systemctl` para apagar / reiniciar / suspender / hibernar
 
@@ -79,6 +81,8 @@ Si querés cambiar la intensidad del vidrio, modificá los valores alfa en `shel
 | Super + Escape | Toggle panel |
 | Click en un workspace | Cambia a ese workspace |
 | Click en ✕ | Cerrar panel |
+| Super + K | Toggle barra musical |
+| Click en ícono de carpeta `` | Seleccionar carpeta y reproducir con mpv |
 
 ### Secciones del panel
 
@@ -87,6 +91,10 @@ Si querés cambiar la intensidad del vidrio, modificá los valores alfa en `shel
 - **Brillo** — Slider de brillo
 - **Red** — Conexión actual, redes WiFi disponibles, conectar por contraseña
 - **Bluetooth** — Estado y alias del dispositivo
+
+### Barra musical
+
+Widget MPRIS con barras animadas y marquee infinito. Se activa con **Super + K** o automáticamente al seleccionar una carpeta con el ícono ``. Usa `mpv` para reproducir y `mpv-mpris` para exponer la metadata via MPRIS.
 
 ## Colores (glassmorphism)
 
@@ -115,6 +123,7 @@ Los colores están hardcodeados en `shell.qml` y los archivos de sección (`Volu
 | `BrightnessSection.qml` | Control de brillo con slider |
 | `NetworkSection.qml` | Estado de red, WiFi, conexión |
 | `BluetoothSection.qml` | Estado y alias de bluetooth |
+| `MusicWidget.qml` | Widget musical MPRIS con barras y marquee |
 | `reload.sh` | Script para recargar la configuración |
 | `hypr/lookandfeel.conf` | Blur optimizado para vidrio empañado |
 | `hypr/barra.conf` | Autostart y layerrules para Quickshell |
