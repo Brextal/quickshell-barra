@@ -25,9 +25,9 @@ git clone https://github.com/Brextal/quickshell-barra.git ~/.config/quickshell/b
 
 Para que el efecto **vidrio empañado** funcione correctamente, necesitás tener el blur habilitado en Hyprland.
 
-### 1. Habilitar blur (si no lo tenés)
+### 1. Blur optimizado para vidrio empañado
 
-En `~/.config/hypr/hyprland.conf`:
+En tu archivo de decoración (`~/.config/hypr/lookandfeel.conf` o directamente en `hyprland.conf`):
 
 ```conf
 decoration {
@@ -37,20 +37,21 @@ decoration {
         passes = 3
         ignore_opacity = true
         new_optimizations = on
+        vibrancy = 0.1696
     }
 }
 ```
 
-### 2. Reglas para la barra
+### 2. Reglas para Quickshell
 
-Agregar al final de `~/.config/hypr/hyprland.conf`:
+Agregar en tu archivo de configuración de Hyprland:
 
 ```conf
-layerrule = blur, quickshell
-layerrule = ignorezero, quickshell
+layerrule = blur on, match:namespace quickshell
+layerrule = ignore_alpha 0, match:namespace quickshell
 ```
 
-Esto hace que el fondo detrás de la barra se vea borroso, dando el efecto vidrio.
+Esto hace que el fondo detrás de la barra se vea borroso, dando el efecto vidrio empañado.
 
 Si querés ajustar la transparencia del blur, podés cambiar los valores alfa en los colores dentro de `shell.qml`:
 - `#18ffffff` → fondo isla cerrada
