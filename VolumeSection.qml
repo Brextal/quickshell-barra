@@ -35,7 +35,7 @@ Column {
                 background: Rectangle {
                     x: volumeSlider.leftPadding
                     y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
-                    width: volumeSlider.availableWidth; height: 4; radius: 2; color: "#2a2a3a"
+                    width: volumeSlider.availableWidth; height: 4; radius: 2; color: "#333344"
                     Rectangle {
                         width: volumeSlider.visualPosition * parent.width; height: parent.height
                         radius: 2; color: "#3dd1b0"
@@ -44,7 +44,7 @@ Column {
                 handle: Rectangle {
                     x: volumeSlider.leftPadding + volumeSlider.visualPosition * (volumeSlider.availableWidth - width)
                     y: volumeSlider.topPadding + volumeSlider.availableHeight / 2 - height / 2
-                    width: 14; height: 14; radius: 7; color: "#f5e2c5"
+                    width: 14; height: 14; radius: 7; color: "#ffffff"
                 }
             }
         }

@@ -31,7 +31,7 @@ Column {
                 background: Rectangle {
                     x: brightnessSlider.leftPadding
                     y: brightnessSlider.topPadding + brightnessSlider.availableHeight / 2 - height / 2
-                    width: brightnessSlider.availableWidth; height: 4; radius: 2; color: "#2a2a3a"
+                    width: brightnessSlider.availableWidth; height: 4; radius: 2; color: "#333344"
                     Rectangle {
                         width: brightnessSlider.visualPosition * parent.width; height: parent.height
                         radius: 2; color: "#e5b83d"
@@ -40,7 +40,7 @@ Column {
                 handle: Rectangle {
                     x: brightnessSlider.leftPadding + brightnessSlider.visualPosition * (brightnessSlider.availableWidth - width)
                     y: brightnessSlider.topPadding + brightnessSlider.availableHeight / 2 - height / 2
-                    width: 14; height: 14; radius: 7; color: "#f5e2c5"
+                    width: 14; height: 14; radius: 7; color: "#ffffff"
                 }
             }
         }

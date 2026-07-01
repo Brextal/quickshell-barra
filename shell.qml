@@ -8,23 +8,30 @@ import QtQuick.Window
 ShellRoot {
     id: root
     property bool showingPanel: false
+    // ─── Spacer: reserva 44px fijos arriba ───
+
+    PanelWindow {
+        id: spacer
+        anchors { top: true; left: true; right: true }
+        exclusionMode: ExclusionMode.Auto
+        implicitHeight: 44
+        color: "transparent"
+    }
+
+    // ─── Isla flotante (no reserva espacio) ───
+
     PanelWindow {
         id: window
-        anchors {
-            top: true
-            left: true
-            right: true
-        }
-        exclusionMode: ExclusionMode.Auto
+        anchors { top: true; left: true; right: true }
+        exclusionMode: ExclusionMode.Ignore
         aboveWindows: true
 
         color: "transparent"
-        implicitHeight: window.showingPowerMenu ? 174 : 44
+        implicitHeight: root.showingPanel ? 520 : 44
 
         property bool showingWorkspaces: false
-        property bool showingPowerMenu: false
         property bool flashActive: false
-        property string flashColorValue: "#331a1b26"
+        property string flashColorValue: "#3dd1b033"
 
         function flashColor(color) {
             flashActive = true
@@ -42,15 +49,9 @@ ShellRoot {
             id: hideTimer
             interval: 1500
             onTriggered: {
-                window.flashColor("#4d4a3a1e")
+                window.flashColor("#3dd1b033")
                 window.showingWorkspaces = false
             }
-        }
-
-        Timer {
-            id: showPanelTimer
-            interval: 400
-            onTriggered: controlCenter.visible = true
         }
 
         // ─── Island Background ───
@@ -62,67 +63,51 @@ ShellRoot {
                 topMargin: 4
                 horizontalCenter: parent.horizontalCenter
             }
-            width: root.showingPanel ? 340
-                   : window.showingPowerMenu ? 370
+            width: root.showingPanel ? 380
                    : window.showingWorkspaces ? wsRow.implicitWidth + 24
                    : (clockText ? clockText.implicitWidth + 6 : 50) + 24
-            height: window.showingPowerMenu ? 170 : 32
+            height: root.showingPanel ? 500 : 32
             radius: 14
-            bottomLeftRadius: root.showingPanel ? 0 : 14
-            bottomRightRadius: root.showingPanel ? 0 : 14
+            bottomLeftRadius: root.showingPanel ? 14 : 14
+            bottomRightRadius: root.showingPanel ? 14 : 14
             color: window.flashActive ? window.flashColorValue
-                   : root.showingPanel ? "#4d1a1b26"
-                   : "#331a1b26"
+                   : root.showingPanel ? "#22ffffff"
+                   : "#18ffffff"
             border {
-                color: "#1affffff"
+                color: "#30ffffff"
                 width: 1
             }
 
             Behavior on width {
-                NumberAnimation {
-                    duration: 400
-                    easing.type: Easing.InOutQuad
-                }
+                NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
             }
 
             Behavior on color {
-                ColorAnimation {
-                    duration: 400
-                    easing.type: Easing.InOutSine
-                }
+                ColorAnimation { duration: 200; easing.type: Easing.InOutSine }
             }
 
             Behavior on bottomLeftRadius {
-                NumberAnimation {
-                    duration: 350
-                    easing.type: Easing.InOutQuad
-                }
+                NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
             }
 
             Behavior on bottomRightRadius {
-                NumberAnimation {
-                    duration: 350
-                    easing.type: Easing.InOutQuad
-                }
+                NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
             }
 
             Behavior on height {
-                NumberAnimation {
-                    duration: 400
-                    easing.type: Easing.InOutQuad
-                }
+                NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
             }
 
-            // ─── Clock ───
+            // ─── Clock (only when closed) ───
 
             Item {
                 anchors.centerIn: parent
                 width: clockText.width + 20
                 height: clockText.height
-                opacity: !window.showingWorkspaces && !root.showingPanel && !window.showingPowerMenu ? 1 : 0
+                opacity: !window.showingWorkspaces && !root.showingPanel ? 1 : 0
                 visible: opacity > 0
                 Behavior on opacity {
-                    NumberAnimation { duration: 200; easing.type: Easing.OutQuad }
+                    NumberAnimation { duration: 120; easing.type: Easing.OutQuad }
                 }
 
                 MouseArea {
@@ -130,7 +115,6 @@ ShellRoot {
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
                         root.showingPanel = true
-                        showPanelTimer.start()
                     }
                 }
 
@@ -157,10 +141,7 @@ ShellRoot {
                 opacity: window.showingWorkspaces ? 1 : 0
                 visible: opacity > 0
                 Behavior on opacity {
-                    NumberAnimation {
-                        duration: 200
-                        easing.type: Easing.InQuad
-                    }
+                    NumberAnimation { duration: 120; easing.type: Easing.InQuad }
                 }
                 spacing: 4
 
@@ -176,8 +157,8 @@ ShellRoot {
                         Rectangle {
                             anchors.fill: parent
                             radius: 6
-                            color: parent.isActive ? "#3dd1b0" : "#2a2a3a"
-                            opacity: parent.isActive ? 0.35 : 0.2
+                            color: parent.isActive ? "#3dd1b0" : "#18ffffff"
+                            opacity: parent.isActive ? 0.35 : 0.3
                         }
 
                         Text {
@@ -196,90 +177,150 @@ ShellRoot {
                     }
                 }
             }
-        }
 
-        // ─── Power menu grid ───
+            // ─── Extended panel content ───
 
-        Item {
-            anchors.centerIn: parent
-            width: 346
-            height: 146
-            opacity: window.showingPowerMenu ? 1 : 0
-            visible: opacity > 0
-            Behavior on opacity {
-                NumberAnimation { duration: 200; easing.type: Easing.InQuad }
-            }
+            Item {
+                anchors.fill: parent
+                anchors.margins: 12
+                opacity: root.showingPanel ? 1 : 0
+                visible: opacity > 0
+                Behavior on opacity {
+                    NumberAnimation { duration: 120; easing.type: Easing.OutQuad }
+                }
 
-            Grid {
-                anchors.centerIn: parent
-                columns: 3
-                rows: 2
-                spacing: 8
+                Flickable {
+                    anchors.fill: parent
+                    contentHeight: panelColumn.height
+                    clip: true
 
-                Repeater {
-                    model: [
-                        { icon: "\uf023", label: "Bloquear", cmd: ["hyprlock"] },
-                        { icon: "\uf186", label: "Suspender", cmd: ["systemctl", "suspend"] },
-                        { icon: "\uf2dc", label: "Hibernar", cmd: ["systemctl", "hibernate"] },
-                        { icon: "\uf021", label: "Reiniciar", cmd: ["systemctl", "reboot"] },
-                        { icon: "\uf011", label: "Apagar", cmd: ["systemctl", "poweroff"] },
-                        { icon: "\uf2f5", label: "Cerrar sesión", cmd: ["hyprctl", "dispatch", "exit"] }
-                    ]
+                    Column {
+                        id: panelColumn
+                        width: parent.width
+                        spacing: 6
 
-                    delegate: Item {
-                        width: 106
-                        height: 60
+                        // ─── Header ───
+
+                        Item {
+                            width: parent.width; height: 28
+                            Text {
+                                anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter
+                                text: "Control Center"
+                                color: "#ffffff"
+                                font { pixelSize: 14; bold: true }
+                            }
+                            Rectangle {
+                                anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+                                width: 22; height: 22; radius: 6; color: "transparent"
+                                Text { anchors.centerIn: parent; text: "✕"; color: "#ffffff"; font.pixelSize: 12 }
+                                MouseArea {
+                                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.showingPanel = false
+                                }
+                            }
+                        }
+
+                        // ─── Power grid ───
 
                         Rectangle {
-                            anchors.fill: parent
-                            radius: 10
-                            color: ma.containsMouse ? "#18ffffff" : "transparent"
-                            border { color: ma.containsMouse ? "#30ffffff" : "transparent"; width: 1 }
+                            width: parent.width
+                            height: 140
+                            color: "transparent"
+
+                            Grid {
+                                anchors.centerIn: parent
+                                columns: 3
+                                rows: 2
+                                spacing: 8
+
+                                Repeater {
+                                    model: [
+                                        { icon: "\uf023", label: "Bloquear", cmd: ["hyprlock"] },
+                                        { icon: "\uf186", label: "Suspender", cmd: ["systemctl", "suspend"] },
+                                        { icon: "\uf2dc", label: "Hibernar", cmd: ["systemctl", "hibernate"] },
+                                        { icon: "\uf021", label: "Reiniciar", cmd: ["systemctl", "reboot"] },
+                                        { icon: "\uf011", label: "Apagar", cmd: ["systemctl", "poweroff"] },
+                                        { icon: "\uf2f5", label: "Cerrar sesión", cmd: ["hyprctl", "dispatch", "exit"] }
+                                    ]
+
+                                    delegate: Item {
+                                        width: 112
+                                        height: 60
+
+                                        Rectangle {
+                                            anchors.fill: parent
+                                            radius: 10
+                                            color: ma.containsMouse ? "#22ffffff" : "transparent"
+                                            border { color: ma.containsMouse ? "#30ffffff" : "transparent"; width: 1 }
+                                        }
+
+                                        Column {
+                                            anchors.centerIn: parent
+                                            spacing: 4
+
+                                            Text {
+                                                anchors.horizontalCenter: parent.horizontalCenter
+                                                text: modelData.icon
+                                                color: "#3dd1b0"
+                                                font.pixelSize: 20
+                                                font.family: "Symbols Nerd Font"
+                                            }
+
+                                            Text {
+                                                anchors.horizontalCenter: parent.horizontalCenter
+                                                text: modelData.label
+                                                color: "#ffffff"
+                                                font.pixelSize: 10
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            id: ma
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                powerProcess.command = modelData.cmd
+                                                powerProcess.running = false
+                                                powerProcess.running = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
 
-                        Column {
-                            anchors.centerIn: parent
-                            spacing: 4
+                        Rectangle { width: parent.width; height: 1; color: "#333344" }
 
-                            Text {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: modelData.icon
-                                color: "#3dd1b0"
-                                font.pixelSize: 20
-                                font.family: "Symbols Nerd Font"
-                            }
+                        // ─── Volume ───
 
-                            Text {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: modelData.label
-                                color: "#ffffff"
-                                font.pixelSize: 10
-                            }
-                        }
+                        VolumeSection { id: volSection }
+                        Rectangle { width: parent.width; height: 1; color: "#333344" }
 
-                        MouseArea {
-                            id: ma
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                runPowerAction(modelData.cmd)
-                                window.showingPowerMenu = false
-                            }
+                        // ─── Brightness ───
+
+                        BrightnessSection { id: brightSection }
+                        Rectangle { width: parent.width; height: 1; color: "#333344" }
+
+                        // ─── Network ───
+
+                        NetworkSection {
+                            id: netSection
+                            onRefreshRequested: delayedRefresh.restart()
                         }
                     }
                 }
             }
         }
 
-        // ─── Right-click power menu ───
+        // ─── Right-click power toggle ───
 
         MouseArea {
             anchors.fill: parent
             acceptedButtons: Qt.RightButton
             cursorShape: Qt.PointingHandCursor
             onClicked: {
-                window.showingPowerMenu = !window.showingPowerMenu
+                root.showingPanel = !root.showingPanel
             }
         }
 
@@ -302,17 +343,11 @@ ShellRoot {
             running: false
         }
 
-        function runPowerAction(cmd) {
-            powerProcess.command = cmd
-            powerProcess.running = false
-            powerProcess.running = true
-        }
-
         Connections {
             target: Hyprland
             function onFocusedWorkspaceChanged() {
                 if (!window.showingWorkspaces) {
-                    window.flashColor("#4d3a1b4e")
+                    window.flashColor("#3dd1b033")
                 }
                 window.showingWorkspaces = true
                 hideTimer.restart()
@@ -320,19 +355,23 @@ ShellRoot {
         }
     }
 
-    // ─── ControlCenter popup ───
+    // ─── Timers ───
 
-    ControlCenter {
-        id: controlCenter
-        anchorItem: islandBg
-        visible: false
+    Timer {
+        id: delayedRefresh
+        interval: 500
+        onTriggered: {
+            volSection.refresh()
+            brightSection.refresh()
+            netSection.refresh()
+        }
     }
 
     Connections {
-        target: controlCenter
-        function onVisibleChanged() {
-            if (!controlCenter.visible) {
-                root.showingPanel = false
+        target: root
+        function onShowingPanelChanged() {
+            if (root.showingPanel) {
+                delayedRefresh.start()
             }
         }
     }
@@ -343,7 +382,7 @@ ShellRoot {
         sequence: "Escape"
         context: Qt.ApplicationShortcut
         onActivated: {
-            controlCenter.visible = false
+            root.showingPanel = false
         }
     }
 
@@ -351,7 +390,7 @@ ShellRoot {
         sequence: "Super+Escape"
         context: Qt.ApplicationShortcut
         onActivated: {
-            window.showingPowerMenu = !window.showingPowerMenu
+            root.showingPanel = !root.showingPanel
         }
     }
 }

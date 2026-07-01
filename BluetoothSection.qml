@@ -21,7 +21,7 @@ Column {
         width: parent.width; height: 28
         Row {
             anchors.verticalCenter: parent.verticalCenter; spacing: 8
-            Text { anchors.verticalCenter: parent.verticalCenter; text: "\uf294"; font.family: "Symbols Nerd Font"; font.pixelSize: 14; color: "#f5e2c5" }
+            Text { anchors.verticalCenter: parent.verticalCenter; text: "\uf294"; font.family: "Symbols Nerd Font"; font.pixelSize: 14; color: "#ffffff" }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: btOn ? "Encendido" : "Apagado"
@@ -54,13 +54,13 @@ Column {
             anchors.verticalCenter: parent.verticalCenter; spacing: 8
             Text { text: "Nombre:"; color: "#888"; font.pixelSize: 11; anchors.verticalCenter: parent.verticalCenter }
             Rectangle {
-                width: 140; height: 22; radius: 6; color: "#0a0a1a"
-                border { color: "#3a3a4a"; width: 1 }
+                width: 140; height: 22; radius: 6; color: "#18ffffff"
+                border { color: "#30ffffff"; width: 1 }
                 TextInput {
                     id: aliasInput
                     anchors.fill: parent; anchors.margins: 4
                     text: btAlias
-                    color: "#f5e2c5"; font.pixelSize: 11
+                    color: "#ffffff"; font.pixelSize: 11
                     selectByMouse: true
                 }
             }
@@ -148,7 +148,7 @@ Column {
                         }
                         Text {
                             text: modelData.name || modelData.address
-                            color: "#f5e2c5"; font.pixelSize: 11
+                            color: "#ffffff"; font.pixelSize: 11
                             width: 160; elide: Text.ElideRight
                         }
                         Text {

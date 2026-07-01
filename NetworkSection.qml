@@ -34,15 +34,15 @@ Column {
                 font.pixelSize: 16
                 color: connType === "none" ? "#f55"
                     : connType === "wifi" && connSignal < 33 ? "#e5b83d"
-                    : connType === "wifi" && connSignal < 66 ? "#f5e2c5"
+                    : connType === "wifi" && connSignal < 66 ? "#ffffff"
                     : connType === "wifi" ? "#3dd1b0"
-                    : "#f5e2c5"
+                    : "#ffffff"
             }
             Column {
                 anchors.verticalCenter: parent.verticalCenter
                 Text {
                     text: connType === "none" ? "Desconectado" : connName
-                    color: connType === "none" ? "#f55" : "#f5e2c5"
+                    color: connType === "none" ? "#f55" : "#ffffff"
                     font.pixelSize: 12
                 }
                 Text {
@@ -70,7 +70,7 @@ Column {
     }
 
     Rectangle {
-        width: parent.width; height: 24; radius: 6; color: "#331a1b26"
+        width: parent.width; height: 24; radius: 6; color: "#18ffffff"
         visible: connType === "wifi" || connType === "none"
         Text {
             anchors.left: parent.left; anchors.leftMargin: 8; anchors.verticalCenter: parent.verticalCenter
@@ -113,7 +113,7 @@ Column {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: modelData.ssid || "<Red oculta>"
-                            color: "#f5e2c5"; font.pixelSize: 11
+                            color: "#ffffff"; font.pixelSize: 11
                             elide: Text.ElideRight; width: 150
                         }
                         Item {
@@ -158,7 +158,7 @@ Column {
 
     Rectangle {
         width: parent.width; height: connectSsid ? 56 : 0
-        radius: 8; color: "#4d1a1b26"; clip: true
+        radius: 8; color: "#22ffffff"; clip: true
         visible: connectSsid !== ""
         onVisibleChanged: if (visible) Qt.callLater(() => pwInput.forceActiveFocus())
         Behavior on height { NumberAnimation { duration: 150 } }
@@ -168,20 +168,17 @@ Column {
             visible: connectSsid !== ""
             Text {
                 text: "Conectar a: " + connectSsid
-                color: "#f5e2c5"; font.pixelSize: 11
+                color: "#ffffff"; font.pixelSize: 11
             }
             Row {
                 spacing: 6
                 Rectangle {
-                    width: 160; height: 26; radius: 6; color: "#0a0a1a"
-                    border { color: "#3a3a4a"; width: 1 }
+                    width: 160; height: 26; radius: 6; color: "#18ffffff"
+                    border { color: "#30ffffff"; width: 1 }
                     TextInput {
                         id: pwInput
                         anchors.fill: parent; anchors.margins: 4
-                        color: "#f5e2c5"; font.pixelSize: 11
-                        echoMode: TextInput.Password
-                        selectByMouse: true
-                        onTextChanged: connectPassword = text
+                        color: "#ffffff"; font.pixelSize: 11
                     }
                     Text {
                         anchors.fill: parent; anchors.margins: 4
