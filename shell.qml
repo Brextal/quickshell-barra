@@ -14,7 +14,7 @@ ShellRoot {
         id: spacer
         anchors { top: true; left: true; right: true }
         exclusionMode: ExclusionMode.Auto
-        implicitHeight: 24
+        implicitHeight: 40
         color: "transparent"
     }
 
@@ -392,5 +392,12 @@ ShellRoot {
         onActivated: {
             root.showingPanel = !root.showingPanel
         }
+    }
+
+    GlobalShortcut {
+        appid: "qs-shortcuts"
+        name: "bar-toggle"
+        description: "Toggle control panel"
+        onPressed: root.showingPanel = !root.showingPanel
     }
 }
