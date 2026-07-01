@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Services.Mpris
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
@@ -8,17 +9,18 @@ import QtQuick.Window
 ShellRoot {
     id: root
     property bool showingPanel: false
+    property bool showingMusic: false
     // ─── Spacer: reserva 44px fijos arriba ───
 
     PanelWindow {
         id: spacer
         anchors { top: true; left: true; right: true }
         exclusionMode: ExclusionMode.Auto
-        implicitHeight: 20
+        implicitHeight: 40
         color: "transparent"
     }
 
-    // ─── Isla flotante (no reserva espacio) ───
+    // ─── Isla (siempre flota, spacer reserva espacio) ───
 
     PanelWindow {
         id: window
@@ -29,6 +31,7 @@ ShellRoot {
         color: "transparent"
         implicitHeight: root.showingPanel ? 520 : 36
 
+        property bool showingMusic: root.showingMusic
         property bool showingWorkspaces: false
         property bool flashActive: false
         property string flashColorValue: "#3dd1b033"
@@ -64,6 +67,7 @@ ShellRoot {
                 horizontalCenter: parent.horizontalCenter
             }
             width: root.showingPanel ? 380
+                   : window.showingMusic ? Math.min(Math.max(320, musicWidget.implicitWidth + 12), 560) + 24
                    : window.showingWorkspaces ? wsRow.implicitWidth + 24
                    : (clockText ? clockText.implicitWidth + 6 : 50) + 24
             height: root.showingPanel ? 500 : 32
@@ -104,7 +108,7 @@ ShellRoot {
                 anchors.centerIn: parent
                 width: clockText.width + 20
                 height: clockText.height
-                opacity: !window.showingWorkspaces && !root.showingPanel ? 1 : 0
+                opacity: !window.showingWorkspaces && !root.showingPanel && !window.showingMusic ? 1 : 0
                 visible: opacity > 0
                 Behavior on opacity {
                     NumberAnimation { duration: 120; easing.type: Easing.OutQuad }
@@ -133,12 +137,44 @@ ShellRoot {
                 }
             }
 
+            // ─── Music bar ───
+
+            Item {
+                id: musicItem
+                anchors.centerIn: parent
+                width: parent.width - 12
+                height: parent.height - 4
+                opacity: window.showingMusic ? 1 : 0
+                visible: opacity > 0
+                Behavior on opacity {
+                    NumberAnimation { duration: 120; easing.type: Easing.OutQuad }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        root.showingPanel = true
+                    }
+                }
+
+                MusicWidget {
+                    id: musicWidget
+                    anchors.centerIn: parent
+                    onMusicStarted: {
+                        root.showingMusic = true
+                        root.showingPanel = false
+                        window.showingWorkspaces = false
+                    }
+                }
+            }
+
             // ─── Workspace row ───
 
             Row {
                 id: wsRow
                 anchors.centerIn: parent
-                opacity: window.showingWorkspaces ? 1 : 0
+                opacity: window.showingWorkspaces && !window.showingMusic ? 1 : 0
                 visible: opacity > 0
                 Behavior on opacity {
                     NumberAnimation { duration: 120; easing.type: Easing.InQuad }
@@ -399,5 +435,30 @@ ShellRoot {
         name: "bar-toggle"
         description: "Toggle control panel"
         onPressed: root.showingPanel = !root.showingPanel
+    }
+
+    GlobalShortcut {
+        appid: "qs-shortcuts"
+        name: "music-toggle"
+        description: "Toggle music bar"
+        onPressed: {
+            root.showingMusic = !root.showingMusic
+            if (root.showingMusic) {
+                root.showingPanel = false
+                window.showingWorkspaces = false
+            }
+        }
+    }
+
+    Shortcut {
+        sequence: "Super+K"
+        context: Qt.ApplicationShortcut
+        onActivated: {
+            root.showingMusic = !root.showingMusic
+            if (root.showingMusic) {
+                root.showingPanel = false
+                window.showingWorkspaces = false
+            }
+        }
     }
 }
