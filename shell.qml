@@ -14,7 +14,7 @@ ShellRoot {
         id: spacer
         anchors { top: true; left: true; right: true }
         exclusionMode: ExclusionMode.Auto
-        implicitHeight: 40
+        implicitHeight: 20
         color: "transparent"
     }
 
