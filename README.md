@@ -25,9 +25,20 @@ git clone https://github.com/Brextal/quickshell-barra.git ~/.config/quickshell/b
 
 Para que el efecto **vidrio empañado** funcione correctamente, necesitás tener el blur habilitado en Hyprland.
 
-### 1. Blur optimizado para vidrio empañado
+### Método rápido (recomendado)
 
-En tu archivo de decoración (`~/.config/hypr/lookandfeel.conf` o directamente en `hyprland.conf`):
+El repo incluye los archivos de configuración listos. Solo agregá al final de `~/.config/hypr/hyprland.conf`:
+
+```conf
+source = ~/.config/quickshell/barra/hypr/lookandfeel.conf
+source = ~/.config/quickshell/barra/hypr/barra.conf
+```
+
+### Método manual
+
+Si preferís no usar `source`, copiá esto a tu configuración:
+
+**Blur optimizado** en tu `lookandfeel.conf` o `hyprland.conf`:
 
 ```conf
 decoration {
@@ -42,19 +53,19 @@ decoration {
 }
 ```
 
-### 2. Reglas para Quickshell
-
-Agregar en tu archivo de configuración de Hyprland:
+**Autostart y layerrules** en tu `hyprland.conf`:
 
 ```conf
+exec-once = qs -p ~/.config/quickshell/barra/shell.qml
+
 layerrule = blur on, match:namespace quickshell
 layerrule = ignore_alpha 0, match:namespace quickshell
 ```
 
-Esto hace que el fondo detrás de la barra se vea borroso, dando el efecto vidrio empañado.
+### Ajustar transparencia
 
-Si querés ajustar la transparencia del blur, podés cambiar los valores alfa en los colores dentro de `shell.qml`:
-- `#18ffffff` → fondo isla cerrada
+Si querés cambiar la intensidad del vidrio, modificá los valores alfa en `shell.qml`:
+- `#18ffffff` → fondo isla cerrada (más/menos transparente)
 - `#22ffffff` → fondo panel abierto
 - `#30ffffff` → bordes
 
@@ -105,6 +116,8 @@ Los colores están hardcodeados en `shell.qml` y los archivos de sección (`Volu
 | `NetworkSection.qml` | Estado de red, WiFi, conexión |
 | `BluetoothSection.qml` | Estado y alias de bluetooth |
 | `reload.sh` | Script para recargar la configuración |
+| `hypr/lookandfeel.conf` | Blur optimizado para vidrio empañado |
+| `hypr/barra.conf` | Autostart y layerrules para Quickshell |
 
 ## Recargar después de cambios
 
