@@ -14,7 +14,7 @@ ShellRoot {
         id: spacer
         anchors { top: true; left: true; right: true }
         exclusionMode: ExclusionMode.Auto
-        implicitHeight: 44
+        implicitHeight: 24
         color: "transparent"
     }
 
@@ -27,7 +27,7 @@ ShellRoot {
         aboveWindows: true
 
         color: "transparent"
-        implicitHeight: root.showingPanel ? 520 : 44
+        implicitHeight: root.showingPanel ? 520 : 36
 
         property bool showingWorkspaces: false
         property bool flashActive: false
