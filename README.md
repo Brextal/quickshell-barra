@@ -1,14 +1,15 @@
 # Quickshell Barra
 
 Panel flotante tipo isla para **Hyprland** con **Quickshell**.
-Estilo **vidrio empañado (glassmorphism)** — fondos blancos traslúcidos, bordes suaves, acentos en teal.
+Estilo **vidrio empañado (glassmorphism)** — fondos blancos traslúcidos, bordes suaves, acentos dinámicos vía [pywal](https://github.com/dylanaraps/pywal).
 
 ## Dependencias
 
-- [Quickshell](https://quickshell.outfoxxed.me/)
+- [Quickshell](https://quickshell.outfoxxed.me/) (0.3.0+)
 - QtQuick, QtQuick.Controls, QtQuick.Window
 - Hyprland (para blur, workspaces, capas)
-- Nerd Fonts (iconos:          )
+- [pywal](https://github.com/dylanaraps/pywal) o [pywal16](https://github.com/eylles/pywal16)
+- Nerd Fonts (iconos)
 - `nmcli` (NetworkManager) para la sección de red
 - `brightnessctl` para el control de brillo
 - `pactl` / `pulseaudio-utils` para el control de volumen
@@ -21,6 +22,7 @@ Estilo **vidrio empañado (glassmorphism)** — fondos blancos traslúcidos, bor
 
 ```bash
 git clone https://github.com/Brextal/quickshell-barra.git ~/.config/quickshell/barra
+ln -s ~/.config/quickshell/shared ~/.config/quickshell/barra/shared
 ```
 
 ## Configuración de Hyprland
@@ -98,21 +100,19 @@ Widget MPRIS con barras animadas y marquee infinito. Se activa con **Super + K**
 
 ## Colores (glassmorphism)
 
+Los colores de acento se cargan automáticamente desde pywal (`color4`, `color5`, `foreground`, `background`). Los colores de fondo y bordes están en `shell.qml`:
+
 | Elemento | Color | Descripción |
 |---|---|---|
 | Fondo isla cerrada | `#18ffffff` | Blanco muy traslúcido |
 | Fondo panel abierto | `#22ffffff` | Blanco semitraslúcido |
 | Bordes | `#30ffffff` | Borde blanco sutil |
-| Color de acento | `#3dd1b0` | Teal / verde menta |
-| Texto principal | `#ffffff` | Blanco |
-| Texto secundario | `#aaaaaa` | Gris claro |
-| Divisores | `#333344` | Gris oscuro |
-| Hover items | `#22ffffff` | Mismo que fondo abierto |
-| Selected item | `#3dd1b033` | Teal con transparencia |
+| Acento | Pywal `color4` | Dinámico según tema |
+| Texto principal | Pywal `foreground` | Dinámico según tema |
 
 ## Personalización
 
-Los colores están hardcodeados en `shell.qml` y los archivos de sección (`VolumeSection.qml`, `BrightnessSection.qml`, `NetworkSection.qml`, `BluetoothSection.qml`). Buscá los valores hexadecimales y reemplazalos por los que quieras.
+Los colores de acento se sincronizan con pywal automáticamente. Para cambiar los colores de fondo, editá los valores hexadecimales en `shell.qml` y los archivos de sección.
 
 ## Archivos
 
