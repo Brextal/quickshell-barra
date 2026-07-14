@@ -1,11 +1,13 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "./shared" as Pywal
 
 Column {
     id: netRoot
     width: parent.width
     spacing: 6
+    property var pywal: Pywal.Pywal { id: pywalColors }
 
     property string connType: "none"
     property string connName: ""
@@ -33,9 +35,9 @@ Column {
                 font.family: "Symbols Nerd Font"
                 font.pixelSize: 16
                 color: connType === "none" ? "#f55"
-                    : connType === "wifi" && connSignal < 33 ? "#e5b83d"
+                    : connType === "wifi" && connSignal < 33 ? pywalColors.color5
                     : connType === "wifi" && connSignal < 66 ? "#ffffff"
-                    : connType === "wifi" ? "#3dd1b0"
+                    : connType === "wifi" ? pywalColors.color4
                     : "#ffffff"
             }
             Column {
@@ -60,7 +62,7 @@ Column {
             Text {
                 anchors.centerIn: parent
                 text: "Desconectar"
-                color: "#3dd1b0"; font.pixelSize: 10
+                color: pywalColors.color4; font.pixelSize: 10
             }
             MouseArea {
                 anchors.fill: parent; cursorShape: Qt.PointingHandCursor
@@ -125,7 +127,7 @@ Column {
                                     x: index * 10; y: 6 - Math.min(index + 1, modelData.signal / 25) * 2
                                     width: 8; height: Math.min(index + 1, modelData.signal / 25) * 3
                                     radius: 2
-                                    color: modelData.signal > index * 25 ? "#3dd1b0" : "#333"
+                                    color: modelData.signal > index * 25 ? pywalColors.color4 : "#333"
                                 }
                             }
                         }
@@ -189,7 +191,7 @@ Column {
                 }
                 Rectangle {
                     width: 60; height: 26; radius: 6
-                    color: connecting ? "#3a3a3a" : "#3dd1b0"
+                    color: connecting ? "#3a3a3a" : pywalColors.color4
                     opacity: connecting ? 0.5 : 1
                     Text {
                         anchors.centerIn: parent

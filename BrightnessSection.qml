@@ -2,11 +2,13 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import QtQuick.Controls
+import "./shared" as Pywal
 
 Column {
     id: brightRoot
     width: parent.width
     spacing: 6
+    property var pywal: Pywal.Pywal { id: pywalColors }
 
     property real brightnessValue: 1
     property bool hasDdcutil: false
@@ -17,7 +19,7 @@ Column {
     Row {
         width: parent.width; height: 34; spacing: 8
         Item { width: 22; height: 22; anchors.verticalCenter: parent.verticalCenter
-            Text { anchors.centerIn: parent; text: "\uf185"; font.family: "Symbols Nerd Font"; font.pixelSize: 13; color: "#3dd1b0" } }
+            Text { anchors.centerIn: parent; text: "\uf185"; font.family: "Symbols Nerd Font"; font.pixelSize: 13; color: pywalColors.color4 } }
         Item {
             width: parent.width - 22 - 36 - 16; height: parent.height
             anchors.verticalCenter: parent.verticalCenter
@@ -34,7 +36,7 @@ Column {
                     width: brightnessSlider.availableWidth; height: 4; radius: 2; color: "#333344"
                     Rectangle {
                         width: brightnessSlider.visualPosition * parent.width; height: parent.height
-                        radius: 2; color: "#e5b83d"
+                        radius: 2; color: pywalColors.color5
                     }
                 }
                 handle: Rectangle {

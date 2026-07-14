@@ -1,11 +1,13 @@
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "./shared" as Pywal
 
 Column {
     id: btRoot
     width: parent.width
     spacing: 6
+    property var pywal: Pywal.Pywal { id: pywalColors }
 
     property bool btOn: false
     property string btAlias: ""
@@ -25,14 +27,14 @@ Column {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: btOn ? "Encendido" : "Apagado"
-                color: btOn ? "#3dd1b0" : "#f55"
+                color: btOn ? pywalColors.color4 : "#f55"
                 font.pixelSize: 12
             }
         }
             Rectangle {
                 anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                 width: 36; height: 20; radius: 10
-                color: btOn ? "#3dd1b0" : "#3a3a3a"
+                color: btOn ? pywalColors.color4 : "#3a3a3a"
                 Behavior on color { ColorAnimation { duration: 150 } }
                 Rectangle {
                     x: btOn ? parent.width - width - 2 : 2
@@ -65,7 +67,7 @@ Column {
                 }
             }
             Rectangle {
-                width: 40; height: 22; radius: 6; color: "#3dd1b0"
+                width: 40; height: 22; radius: 6; color: pywalColors.color4
                 Text { anchors.centerIn: parent; text: "✓"; color: "white"; font { pixelSize: 12; bold: true } }
                 MouseArea {
                     anchors.fill: parent; cursorShape: Qt.PointingHandCursor
@@ -84,7 +86,7 @@ Column {
             Rectangle {
                 anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                 width: 36; height: 20; radius: 10
-                color: btDiscoverable ? "#3dd1b0" : "#3a3a3a"
+                color: btDiscoverable ? pywalColors.color4 : "#3a3a3a"
                 Behavior on color { ColorAnimation { duration: 150 } }
                 Rectangle {
                     x: btDiscoverable ? parent.width - width - 2 : 2
@@ -109,7 +111,7 @@ Column {
             Rectangle {
                 anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
                 width: 36; height: 20; radius: 10
-                color: btPairable ? "#3dd1b0" : "#3a3a3a"
+                color: btPairable ? pywalColors.color4 : "#3a3a3a"
                 Behavior on color { ColorAnimation { duration: 150 } }
                 Rectangle {
                     x: btPairable ? parent.width - width - 2 : 2
@@ -144,7 +146,7 @@ Column {
                         Text {
                             text: "●"; font.pixelSize: 8
                             anchors.verticalCenter: parent.verticalCenter
-                            color: modelData.connected ? "#3dd1b0" : "#555"
+                            color: modelData.connected ? pywalColors.color4 : "#555"
                         }
                         Text {
                             text: modelData.name || modelData.address
@@ -153,7 +155,7 @@ Column {
                         }
                         Text {
                             text: modelData.connected ? "Conectado" : "No conect."
-                            color: modelData.connected ? "#3dd1b0" : "#888"
+                            color: modelData.connected ? pywalColors.color4 : "#888"
                             font.pixelSize: 10
                         }
                     }

@@ -2,11 +2,13 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import QtQuick.Controls
+import "./shared" as Pywal
 
 Column {
     id: volRoot
     width: parent.width
     spacing: 6
+    property var pywal: Pywal.Pywal { id: pywalColors }
 
     property real volumeValue: 1
     property bool volumeMuted: false
@@ -21,7 +23,7 @@ Column {
                 text: volRoot.volumeMuted ? "\uf026" : volRoot.volumeValue < 0.33 ? "\uf027" : "\uf028"
                 font.family: "Symbols Nerd Font"
                 font.pixelSize: 14
-                color: volRoot.volumeMuted ? "#f55" : "#3dd1b0"
+                color: volRoot.volumeMuted ? "#f55" : pywalColors.color4
             } }
         Item {
             width: parent.width - 22 - 30 - 36 - 24; height: parent.height
@@ -38,7 +40,7 @@ Column {
                     width: volumeSlider.availableWidth; height: 4; radius: 2; color: "#333344"
                     Rectangle {
                         width: volumeSlider.visualPosition * parent.width; height: parent.height
-                        radius: 2; color: "#3dd1b0"
+                        radius: 2; color: pywalColors.color4
                     }
                 }
                 handle: Rectangle {
@@ -55,7 +57,7 @@ Column {
             Text {
                 anchors.centerIn: parent
                 text: volRoot.volumeMuted ? "M" : "S"
-                color: volRoot.volumeMuted ? "#f55" : "#3dd1b0"
+                color: volRoot.volumeMuted ? "#f55" : pywalColors.color4
                 font { pixelSize: 11; bold: true }
             }
             MouseArea {

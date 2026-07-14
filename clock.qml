@@ -1,7 +1,9 @@
 import Quickshell
 import QtQuick
+import "./shared" as Pywal
 
 Item {
+    property var pywal: Pywal.Pywal { id: pywalColors }
     SystemClock {
         id: clock
         precision: SystemClock.Minutes
@@ -10,6 +12,6 @@ Item {
     Text {
         anchors.centerIn: parent
         text: Qt.formatDateTime(clock.date, "hh:mm")
-        color: "#3dd1b0"
+        color: pywalColors.color4
     }
 }

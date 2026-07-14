@@ -2,10 +2,12 @@ import Quickshell
 import Quickshell.Services.Mpris
 import Quickshell.Io
 import QtQuick
+import "./shared" as Pywal
 
 Item {
     id: root
     implicitHeight: 24
+    property var pywal: Pywal.Pywal { id: pywalColors }
 
     signal musicStarted()
 
@@ -109,7 +111,7 @@ Item {
                         width: 3
                         height: root.barHeights[index]
                         radius: 1.5
-                        color: "#3dd1b0"
+                        color: pywalColors.color4
                         opacity: 0.8
                         Behavior on height {
                             NumberAnimation { duration: 90; easing.type: Easing.OutQuad }
@@ -130,7 +132,7 @@ Item {
                 id: marqueeText
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.displayText + root.displayText
-                color: "#3dd1b0"
+                color: pywalColors.color4
                 font.pixelSize: 12
                 font.bold: true
                 font.family: "Symbols Nerd Font"
@@ -175,7 +177,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: "\uf04a"
-                    color: maPrev.containsMouse ? "#3dd1b0" : "#aaaaaa"
+                    color: maPrev.containsMouse ? pywalColors.color4 : "#aaaaaa"
                     font.family: "Symbols Nerd Font"
                     font.pixelSize: 12
                 }
@@ -197,7 +199,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: root.player && root.player.isPlaying ? "\uf04c" : "\uf04b"
-                    color: maPlay.containsMouse ? "#3dd1b0" : "#aaaaaa"
+                    color: maPlay.containsMouse ? pywalColors.color4 : "#aaaaaa"
                     font.family: "Symbols Nerd Font"
                     font.pixelSize: 12
                 }
@@ -219,7 +221,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: "\uf04e"
-                    color: maNext.containsMouse ? "#3dd1b0" : "#aaaaaa"
+                    color: maNext.containsMouse ? pywalColors.color4 : "#aaaaaa"
                     font.family: "Symbols Nerd Font"
                     font.pixelSize: 12
                 }
@@ -243,7 +245,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: "\uf07c"
-                    color: maFolder.containsMouse ? "#3dd1b0" : "#aaaaaa"
+                    color: maFolder.containsMouse ? pywalColors.color4 : "#aaaaaa"
                     font.family: "Symbols Nerd Font"
                     font.pixelSize: 12
                 }
@@ -270,7 +272,7 @@ Item {
                         width: 3
                         height: root.barHeights[5 - index]
                         radius: 1.5
-                        color: "#3dd1b0"
+                        color: pywalColors.color4
                         opacity: 0.8
                         Behavior on height {
                             NumberAnimation { duration: 90; easing.type: Easing.OutQuad }
