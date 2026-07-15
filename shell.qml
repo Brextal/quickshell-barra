@@ -19,6 +19,7 @@ ShellRoot {
         color: "transparent"
         visible: root.showingPanel
         implicitHeight: 520
+        focusable: true
 
         Rectangle {
             id: panelBg
@@ -120,7 +121,7 @@ ShellRoot {
                     Rectangle { width: parent.width; height: 1; color: "#333344" }
                     BrightnessSection { id: brightSection }
                     Rectangle { width: parent.width; height: 1; color: "#333344" }
-                    NetworkSection { id: netSection; onRefreshRequested: delayedRefresh.restart() }
+                    NetworkSection { id: netSection; active: root.showingPanel; onRefreshRequested: delayedRefresh.restart() }
                 }
             }
         }

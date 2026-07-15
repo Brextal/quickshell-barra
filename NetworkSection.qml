@@ -18,6 +18,9 @@ Column {
     property bool connecting: false
     property string connectSsid: ""
     property string connectPassword: ""
+    property bool passwordVisible: false
+    property bool active: false
+    property string _prevConnType: "none"
 
     signal refreshRequested()
 
@@ -181,12 +184,30 @@ Column {
                         id: pwInput
                         anchors.fill: parent; anchors.margins: 4
                         color: "#ffffff"; font.pixelSize: 11
+                        selectByMouse: true
+                        echoMode: passwordVisible ? TextInput.Normal : TextInput.Password
+                        onTextChanged: connectPassword = text
+                        onAccepted: connectToWifi(connectSsid, connectPassword)
                     }
                     Text {
                         anchors.fill: parent; anchors.margins: 4
                         text: "Contraseña"
                         color: "#ffffff"; font.pixelSize: 11
                         visible: pwInput.text.length === 0 && !pwInput.activeFocus
+                    }
+                }
+                Rectangle {
+                    width: 26; height: 26; radius: 6; color: "#18ffffff"
+                    Text {
+                        anchors.centerIn: parent
+                        text: passwordVisible ? "\uf06e" : "\uf070"
+                        font.family: "Symbols Nerd Font"
+                        font.pixelSize: 13
+                        color: "#aaa"
+                    }
+                    MouseArea {
+                        anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                        onClicked: passwordVisible = !passwordVisible
                     }
                 }
                 Rectangle {
@@ -218,7 +239,7 @@ Column {
 
     Process {
         id: readNetState
-        command: ["nmcli", "-e", "|", "-t", "-f", "TYPE,DEVICE,STATE,CONNECTION", "device", "status"]
+        command: ["nmcli", "-t", "-f", "TYPE,DEVICE,STATE,CONNECTION", "device", "status"]
         running: false
         stdout: StdioCollector { id: netCollector; waitForEnd: true }
         onExited: {
@@ -228,7 +249,7 @@ Column {
             connDevice = ""
             connSignal = 0
             for (var i = 0; i < lines.length; i++) {
-                var p = lines[i].split("|")
+                var p = lines[i].split(":")
                 if (p.length >= 4 && p[2] === "connected") {
                     if (p[0] === "wifi") {
                         connType = "wifi"
@@ -247,14 +268,14 @@ Column {
 
     Process {
         id: readWifiSignal
-        command: ["nmcli", "-e", "|", "-t", "-f", "SSID,SIGNAL", "device", "wifi", "list", "--rescan", "no"]
+        command: ["nmcli", "-t", "-f", "SSID,SIGNAL", "device", "wifi", "list", "--rescan", "no"]
         running: false
         stdout: StdioCollector { id: wifiSigCollector; waitForEnd: true }
         onExited: {
             var lines = wifiSigCollector.text.trim().split("\n")
             var bestSignal = 0
             for (var i = 0; i < lines.length; i++) {
-                var p = lines[i].split("|")
+                var p = lines[i].split(":")
                 if (p.length >= 2) {
                     var sig = parseInt(p[1]) || 0
                     if (sig > bestSignal) bestSignal = sig
@@ -266,7 +287,7 @@ Column {
 
     Process {
         id: scanWifiCmd
-        command: ["nmcli", "-e", "|", "-t", "-f", "SSID,SIGNAL,SECURITY", "device", "wifi", "list"]
+        command: ["nmcli", "-t", "-f", "SSID,SIGNAL,SECURITY", "device", "wifi", "list"]
         running: false
         stdout: StdioCollector { id: wifiScanCollector; waitForEnd: true }
         onExited: {
@@ -274,11 +295,11 @@ Column {
             var list = []
             var seen = {}
             for (var i = 0; i < lines.length; i++) {
-                var parts = lines[i].split("|")
+                var parts = lines[i].split(":")
                 if (parts.length >= 2) {
                     var ssid = parts[0]
                     var signal = parseInt(parts[1]) || 0
-                    var security = parts.slice(2).join("|") || ""
+                    var security = parts.slice(2).join(":") || ""
                     if (ssid && !seen[ssid]) {
                         seen[ssid] = true
                         list.push({ ssid: ssid, signal: signal, security: security })
@@ -328,6 +349,31 @@ Column {
         disconnectNet.command = ["nmcli", "device", "disconnect", connDevice]
         disconnectNet.running = false
         disconnectNet.running = true
+    }
+
+    onConnTypeChanged: {
+        if (_prevConnType === "ethernet" && connType === "none") {
+            showNetworks = true
+            scanWifi()
+        }
+        _prevConnType = connType
+    }
+
+    onActiveChanged: {
+        if (active) {
+            refresh()
+            pollTimer.start()
+        } else {
+            pollTimer.stop()
+        }
+    }
+
+    Timer {
+        id: pollTimer
+        interval: 3000
+        repeat: true
+        running: false
+        onTriggered: readNetState.running = true
     }
 
     function refresh() {
