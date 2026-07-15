@@ -155,15 +155,6 @@ ShellRoot {
         onPressed: root.showingPanel = !root.showingPanel
     }
 
-    GlobalShortcut {
-        appid: "qs-shortcuts"; name: "music-toggle"; description: "Toggle music widget"
-        onPressed: {
-            ipcToWallclock.command = ["quickshell", "ipc", "-c", "wallclock", "call", "wallclock-control", "toggleMusic"]
-            ipcToWallclock.running = false
-            ipcToWallclock.running = true
-        }
-    }
-
     Process {
         id: ipcToWallclock
         command: []

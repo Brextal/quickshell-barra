@@ -12,7 +12,7 @@ Estilo **vidrio empañado (glassmorphism)** — fondos blancos traslúcidos, bor
 - Nerd Fonts (iconos)
 - `nmcli` (NetworkManager) para la sección de red
 - `brightnessctl` para el control de brillo
-- `pactl` / `pulseaudio-utils` para el control de volumen
+- `wpctl` (WirePlumber) para el control de volumen
 - `mpv` + `mpv-mpris` para reproducción musical con MPRIS
 - `zenity` para selector de carpetas
 - `hyprlock` para bloquear sesión

@@ -218,7 +218,7 @@ Column {
 
     Process {
         id: readNetState
-        command: ["nmcli", "-t", "-f", "TYPE,DEVICE,STATE,CONNECTION", "device", "status"]
+        command: ["nmcli", "-e", "|", "-t", "-f", "TYPE,DEVICE,STATE,CONNECTION", "device", "status"]
         running: false
         stdout: StdioCollector { id: netCollector; waitForEnd: true }
         onExited: {
@@ -228,17 +228,17 @@ Column {
             connDevice = ""
             connSignal = 0
             for (var i = 0; i < lines.length; i++) {
-                var parts = lines[i].split(":")
-                if (parts.length >= 4 && parts[2] === "connected") {
-                    if (parts[0] === "wifi") {
+                var p = lines[i].split("|")
+                if (p.length >= 4 && p[2] === "connected") {
+                    if (p[0] === "wifi") {
                         connType = "wifi"
-                        connDevice = parts[1]
-                        connName = parts[3]
+                        connDevice = p[1]
+                        connName = p[3]
                         readWifiSignal.running = true
-                    } else if (parts[0] === "ethernet") {
+                    } else if (p[0] === "ethernet") {
                         connType = "ethernet"
-                        connDevice = parts[1]
-                        connName = parts[3]
+                        connDevice = p[1]
+                        connName = p[3]
                     }
                 }
             }
@@ -247,16 +247,16 @@ Column {
 
     Process {
         id: readWifiSignal
-        command: ["nmcli", "-t", "-f", "SSID,SIGNAL", "device", "wifi", "list", "--rescan", "no"]
+        command: ["nmcli", "-e", "|", "-t", "-f", "SSID,SIGNAL", "device", "wifi", "list", "--rescan", "no"]
         running: false
         stdout: StdioCollector { id: wifiSigCollector; waitForEnd: true }
         onExited: {
             var lines = wifiSigCollector.text.trim().split("\n")
             var bestSignal = 0
             for (var i = 0; i < lines.length; i++) {
-                var parts = lines[i].split(":")
-                if (parts.length >= 2) {
-                    var sig = parseInt(parts[1]) || 0
+                var p = lines[i].split("|")
+                if (p.length >= 2) {
+                    var sig = parseInt(p[1]) || 0
                     if (sig > bestSignal) bestSignal = sig
                 }
             }
@@ -266,7 +266,7 @@ Column {
 
     Process {
         id: scanWifiCmd
-        command: ["nmcli", "-t", "-f", "SSID,SIGNAL,SECURITY", "device", "wifi", "list"]
+        command: ["nmcli", "-e", "|", "-t", "-f", "SSID,SIGNAL,SECURITY", "device", "wifi", "list"]
         running: false
         stdout: StdioCollector { id: wifiScanCollector; waitForEnd: true }
         onExited: {
@@ -274,11 +274,11 @@ Column {
             var list = []
             var seen = {}
             for (var i = 0; i < lines.length; i++) {
-                var parts = lines[i].split(":")
+                var parts = lines[i].split("|")
                 if (parts.length >= 2) {
                     var ssid = parts[0]
                     var signal = parseInt(parts[1]) || 0
-                    var security = parts.slice(2).join(":") || ""
+                    var security = parts.slice(2).join("|") || ""
                     if (ssid && !seen[ssid]) {
                         seen[ssid] = true
                         list.push({ ssid: ssid, signal: signal, security: security })
