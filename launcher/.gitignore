@@ -1,6 +1,5 @@
-.qmlls.ini
 *.log
 __pycache__/
 *.pyc
-test.qml
+.qmlls.ini
 screenshot.png

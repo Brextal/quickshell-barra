@@ -1,0 +1,12 @@
+# ─── quickshell-launcher ──────────────────────────────────────
+# Copia este fragmento a tu hyprland.conf
+
+# Iniciar el launcher
+exec-once = qs -p ~/.config/quickshell/launcher/shell.qml
+
+# Atajo de teclado
+bind = $mainMod, L, global, qs-shortcuts:app-launcher
+
+# Capa de blur para efecto vidrio esmerilado
+layerrule = blur, match:namespace quickshell
+layerrule = ignore_alpha 0, match:namespace quickshell

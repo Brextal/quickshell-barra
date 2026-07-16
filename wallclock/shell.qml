@@ -1,0 +1,738 @@
+import Quickshell
+import Quickshell.Wayland
+import Quickshell.Hyprland
+import Quickshell.Io
+import Quickshell.Services.Mpris
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Window
+import Qt5Compat.GraphicalEffects
+import "./shared" as Pywal
+
+ShellRoot {
+    id: root
+    property var pywal: Pywal.Pywal { id: pywalColors }
+
+    property int cpuTemp: 0
+    property int gpuTemp: 0
+    property int ramPercent: 0
+    property int diskPercent: 0
+    property int currentWorkspace: 1
+    property bool musicActive: false
+
+    // ─── Workspace indicator (top-left) ───
+
+    PanelWindow {
+        anchors.top: true
+        anchors.left: true
+        exclusionMode: ExclusionMode.Ignore
+        color: "transparent"
+        implicitWidth: 140
+        implicitHeight: 90
+
+        WlrLayershell.layer: WlrLayer.Bottom
+
+        Column {
+            anchors.centerIn: parent
+            spacing: 2
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Workspace"
+                color: pywalColors.color6
+                font.pixelSize: 12
+                font.bold: true
+                opacity: 0.7
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: root.currentWorkspace
+                color: pywalColors.color4
+                font.pixelSize: 36
+                font.bold: true
+            }
+        }
+
+        Connections {
+            target: Hyprland
+            function onFocusedWorkspaceChanged() {
+                root.currentWorkspace = Hyprland.focusedWorkspace?.id ?? 1
+            }
+        }
+
+        Component.onCompleted: {
+            root.currentWorkspace = Hyprland.focusedWorkspace?.id ?? 1
+        }
+    }
+
+    // ─── Clock (top-right) ───
+
+    PanelWindow {
+        anchors.top: true
+        anchors.right: true
+        exclusionMode: ExclusionMode.Ignore
+        color: "transparent"
+        implicitWidth: 350
+        implicitHeight: 500
+
+        WlrLayershell.layer: WlrLayer.Bottom
+
+        SystemClock {
+            id: clock
+            precision: SystemClock.Minutes
+        }
+
+        Column {
+            id: clockCol
+            anchors.right: parent.right
+            anchors.rightMargin: 220
+            y: 100
+            spacing: -28
+
+            Text {
+                text: Qt.formatDateTime(clock.date, "HH")
+                color: pywalColors.color4
+                style: Text.Outline
+                styleColor: "#80000000"
+                font.pixelSize: 82
+                font.bold: true
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: Qt.formatDateTime(clock.date, "mm")
+                color: pywalColors.color4
+                opacity: 0.75
+                style: Text.Outline
+                styleColor: "#80000000"
+                font.pixelSize: 62
+                font.bold: true
+            }
+        }
+
+        Text {
+            anchors.right: clockCol.right
+            anchors.bottom: clockCol.top
+            anchors.bottomMargin: 6
+            text: Qt.formatDate(clock.date, "MMMM d")
+            color: pywalColors.color5
+            style: Text.Outline
+            styleColor: "#80000000"
+            font.pixelSize: 16
+            font.bold: true
+        }
+
+        Text {
+            anchors.right: clockCol.right
+            anchors.top: clockCol.bottom
+            anchors.topMargin: 12
+            text: Qt.formatDate(clock.date, "yyyy")
+            color: pywalColors.color6
+            style: Text.Outline
+            styleColor: "#80000000"
+            font.pixelSize: 14
+            font.bold: true
+        }
+    }
+
+    // ─── Music widget (center-right, floating) ───
+
+    property bool showingMusic: false
+    property real musicPosition: 0
+    property var cavaBars: [0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    property string coverPath: ""
+    property string lastTrackUrl: ""
+    property string _dir: Qt.resolvedUrl(".").toString().replace("file://", "") + "/"
+    property real artistScrollX: 0
+    property real titleScrollX: 0
+
+
+    Timer {
+        interval: 1000
+        running: root.showingMusic
+        repeat: true
+        onTriggered: {
+            var p = musicPlayer.findActive()
+            if (p) root.musicPosition = p.position || 0
+        }
+    }
+
+    PanelWindow {
+        id: musicPanel
+        anchors { right: true; top: true }
+        margins.top: 220
+        margins.right: 30
+        exclusionMode: ExclusionMode.Ignore
+        color: "transparent"
+        implicitWidth: 200
+        implicitHeight: 560
+        visible: root.showingMusic
+
+        aboveWindows: true
+
+        mask: Region {
+            Region { item: mBtnPrev }
+            Region { item: mBtnPlay }
+            Region { item: mBtnFolder }
+            Region { item: mBtnNext }
+        }
+
+        Item {
+            anchors.centerIn: parent
+            width: 180
+            height: 400
+
+            Rectangle {
+                anchors.fill: parent
+                radius: 16
+                color: "#221e1e2e"
+                border { color: "#20ffffff"; width: 1 }
+            }
+
+            Column {
+                anchors.centerIn: parent
+                spacing: 10
+
+                // ─── Album Art (circular, spinning) ───
+
+                Item {
+                    width: 120; height: 120
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    Image {
+                        id: albumArt
+                        width: 120; height: 120
+                        anchors.centerIn: parent
+                        source: root.coverPath ? "file://" + root.coverPath : ""
+                        fillMode: Image.PreserveAspectCrop
+                        visible: false
+                    }
+
+                    OpacityMask {
+                        anchors.centerIn: parent
+                        width: 120; height: 120
+                        source: albumArt
+                        maskSource: Rectangle {
+                            width: 120; height: 120
+                            radius: 60
+                        }
+
+                        NumberAnimation on rotation {
+                            from: 0; to: 360
+                            duration: 8000
+                            loops: Animation.Infinite
+                            running: {
+                                var p = musicPlayer.findActive()
+                                return p && p.isPlaying
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 60
+                        color: "transparent"
+                        border { color: "#30ffffff"; width: 1 }
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "\uf001"
+                        font.family: "Symbols Nerd Font"
+                        font.pixelSize: 32
+                        color: "#40ffffff"
+                        visible: albumArt.status !== Image.Ready
+                    }
+                }
+
+                // ─── Play / Pause ───
+
+                Item {
+                    id: mBtnPlay
+                    width: 48; height: 48
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    Rectangle {
+                        anchors.fill: parent; radius: 24
+                        color: mPlayMa.containsMouse ? "#501e1e2e" : "#301e1e2e"
+                        border { color: "#601e1e2e"; width: 1 }
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: {
+                            var p = musicPlayer.findActive()
+                            return p && p.isPlaying ? "\uf04c" : "\uf04b"
+                        }
+                        color: pywalColors.color4
+                        font.family: "Symbols Nerd Font"
+                        font.pixelSize: 18
+                    }
+
+                    MouseArea {
+                        id: mPlayMa
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            var p = musicPlayer.findActive()
+                            if (p && p.canTogglePlaying) p.togglePlaying()
+                        }
+                    }
+                }
+
+                // ─── Artist ───
+
+                Item {
+                    width: 180; height: 16
+
+                    Item {
+                        anchors.fill: parent
+                        anchors.leftMargin: 10
+                        anchors.rightMargin: 10
+                        clip: true
+
+                        Text {
+                            id: artistSingle
+                            visible: false
+                            font.pixelSize: 12
+                            font.bold: true
+                            text: {
+                                var p = musicPlayer.findActive()
+                                return (p && p.trackArtist ? p.trackArtist : "Artist") + "  \u25cf  "
+                            }
+                        }
+
+                        Text {
+                            id: artistLabel
+                            anchors.verticalCenter: parent.verticalCenter
+                            property string original: {
+                                var p = musicPlayer.findActive()
+                                return p && p.trackArtist ? p.trackArtist : "Artist"
+                            }
+                            text: original + "  \u25cf  " + original + "  \u25cf  " + original
+                            color: pywalColors.color4
+                            font.pixelSize: 12
+                            font.bold: true
+                            width: implicitWidth
+                            x: root.artistScrollX
+                        }
+                    }
+                }
+
+                // ─── Song title ───
+
+                Item {
+                    width: 180; height: 16
+
+                    Item {
+                        anchors.fill: parent
+                        anchors.leftMargin: 10
+                        anchors.rightMargin: 10
+                        clip: true
+
+                        Text {
+                            id: titleSingle
+                            visible: false
+                            font.pixelSize: 11
+                            text: {
+                                var p = musicPlayer.findActive()
+                                return (p && p.trackTitle ? p.trackTitle : "Song") + "  \u25cf  "
+                            }
+                        }
+
+                        Text {
+                            id: titleLabel
+                            anchors.verticalCenter: parent.verticalCenter
+                            property string original: {
+                                var p = musicPlayer.findActive()
+                                return p && p.trackTitle ? p.trackTitle : "Song"
+                            }
+                            text: original + "  \u25cf  " + original + "  \u25cf  " + original
+                            color: pywalColors.color4
+                            opacity: 0.85
+                            font.pixelSize: 11
+                            width: implicitWidth
+                            x: root.titleScrollX
+                        }
+                    }
+                }
+
+                // ─── Duration ───
+
+                Text {
+                    text: {
+                        var p = musicPlayer.findActive()
+                        if (!p) return "0:00 / 0:00"
+                        var pos = Math.floor(root.musicPosition)
+                        var dur = Math.floor(p.length || 0)
+                        function fmt(s) {
+                            var m = Math.floor(s / 60)
+                            var sec = s % 60
+                            return m + ":" + (sec < 10 ? "0" : "") + sec
+                        }
+                        return fmt(pos) + " / " + fmt(dur)
+                    }
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: pywalColors.color4
+                    opacity: 0.65
+                    font.pixelSize: 10
+                }
+
+                // ─── Separator ───
+
+                Rectangle {
+                    width: 80; height: 1
+                    color: "#30ffffff"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                // ─── Prev / Folder / Next ───
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 30
+
+                    Item {
+                        id: mBtnPrev
+                        width: 30; height: 30
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Rectangle {
+                            anchors.fill: parent; radius: 8
+                            color: mPrevMa.containsMouse ? "#301e1e2e" : "transparent"
+                            border { color: mPrevMa.containsMouse ? "#601e1e2e" : "transparent"; width: 1 }
+                        }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "\uf04a"
+                            color: pywalColors.color4
+                            opacity: mPrevMa.containsMouse ? 1.0 : 0.5
+                            font.family: "Symbols Nerd Font"
+                            font.pixelSize: 12
+                        }
+                        MouseArea {
+                            id: mPrevMa
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                navProc.command = ["dbus-send", "--session", "--type=method_call",
+                                    "--dest=org.mpris.MediaPlayer2.mpv",
+                                    "/org/mpris/MediaPlayer2",
+                                    "org.mpris.MediaPlayer2.Player.Previous"]
+                                navProc.running = false
+                                navProc.running = true
+                            }
+                        }
+                    }
+
+                    Item {
+                        id: mBtnFolder
+                        width: 30; height: 30
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Rectangle {
+                            anchors.fill: parent; radius: 8
+                            color: mFolderMa.containsMouse ? "#301e1e2e" : "transparent"
+                            border { color: mFolderMa.containsMouse ? "#601e1e2e" : "transparent"; width: 1 }
+                        }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "\uf07c"
+                            color: pywalColors.color4
+                            opacity: mFolderMa.containsMouse ? 1.0 : 0.5
+                            font.family: "Symbols Nerd Font"
+                            font.pixelSize: 12
+                        }
+                        MouseArea {
+                            id: mFolderMa
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.openFolder()
+                        }
+                    }
+
+                    Item {
+                        id: mBtnNext
+                        width: 30; height: 30
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Rectangle {
+                            anchors.fill: parent; radius: 8
+                            color: mNextMa.containsMouse ? "#301e1e2e" : "transparent"
+                            border { color: mNextMa.containsMouse ? "#601e1e2e" : "transparent"; width: 1 }
+                        }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "\uf04e"
+                            color: pywalColors.color4
+                            opacity: mNextMa.containsMouse ? 1.0 : 0.5
+                            font.family: "Symbols Nerd Font"
+                            font.pixelSize: 12
+                        }
+                        MouseArea {
+                            id: mNextMa
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                navProc.command = ["dbus-send", "--session", "--type=method_call",
+                                    "--dest=org.mpris.MediaPlayer2.mpv",
+                                    "/org/mpris/MediaPlayer2",
+                                    "org.mpris.MediaPlayer2.Player.Next"]
+                                navProc.running = false
+                                navProc.running = true
+                            }
+                        }
+                    }
+                }
+
+                // ─── Equalizer bars ───
+
+                Item {
+                    width: parent.width
+                    height: 22
+
+                    Repeater {
+                        model: 14
+                        Rectangle {
+                            width: 3
+                            height: 4 + Math.min(root.cavaBars[13 - index] / 700, 1) * 18
+                            x: (parent.width - 94) / 2 + index * 7
+                            anchors.bottom: parent.bottom
+                            radius: 1.5
+                            color: pywalColors.color4
+                            opacity: 0.7
+                            Behavior on height {
+                                NumberAnimation { duration: 80; easing.type: Easing.OutQuad }
+                            }
+                        }
+                    }
+                }
+
+
+            }
+        }
+    }
+
+    Process {
+        id: folderProc
+        command: []
+        running: false
+    }
+
+    Process {
+        id: navProc
+        command: []
+        running: false
+    }
+
+    Process {
+        id: coverProc
+        command: []
+        running: false
+        stdout: StdioCollector { id: coverCol; waitForEnd: true }
+        onExited: {
+            var out = coverCol.text.trim()
+            root.coverPath = out.length > 0 ? out : ""
+        }
+    }
+
+    Process {
+        id: cavaProc
+        command: ["sh", root._dir + "cava-read.sh"]
+        running: false
+    }
+
+    Connections {
+        target: root
+        function onShowingMusicChanged() {
+            if (root.showingMusic) {
+                cavaProc.running = true
+            } else {
+                cavaProc.running = false
+            }
+        }
+    }
+
+    Process {
+        id: cavaReader
+        command: ["cat", "/tmp/cava_bars"]
+        running: false
+        stdout: StdioCollector { id: cavaCol; waitForEnd: true }
+        onExited: {
+            var line = cavaCol.text.trim()
+            if (line.length === 0) return
+            var parts = line.split(";").filter(function(s) { return s.length > 0 })
+            var bars = []
+            for (var i = 0; i < 14 && i < parts.length; i++) {
+                bars.push(parseInt(parts[i]) || 0)
+            }
+            while (bars.length < 14) bars.push(0)
+            root.cavaBars = bars
+        }
+    }
+
+    Timer {
+        interval: 33
+        running: root.showingMusic
+        repeat: true
+        onTriggered: cavaReader.running = false, cavaReader.running = true
+    }
+
+    Timer {
+        interval: 16
+        running: root.showingMusic
+        repeat: true
+        onTriggered: {
+            var visibleW = 160
+            var aw = artistLabel.width
+            if (aw > visibleW) {
+                var asw = artistSingle.implicitWidth
+                root.artistScrollX -= 0.5
+                if (root.artistScrollX <= -asw)
+                    root.artistScrollX = 0
+            } else {
+                root.artistScrollX = (visibleW - aw) / 2
+            }
+            var tw = titleLabel.width
+            if (tw > visibleW) {
+                var tsw = titleSingle.implicitWidth
+                root.titleScrollX -= 0.5
+                if (root.titleScrollX <= -tsw)
+                    root.titleScrollX = 0
+            } else {
+                root.titleScrollX = (visibleW - tw) / 2
+            }
+        }
+    }
+
+    function openFolder() {
+        folderProc.command = ["sh", "-c", "dir=$(zenity --file-selection --directory --title='Seleccionar música') && [ -n \"$dir\" ] && mpv --no-video \"$dir\""]
+        folderProc.running = false
+        folderProc.running = true
+    }
+
+    QtObject {
+        id: musicPlayer
+
+        property var player: Mpris.players.values.length > 0 ? Mpris.players.values[0] : null
+
+        function findActive() {
+            var values = Mpris.players.values
+            for (var i = values.length - 1; i >= 0; i--) {
+                if (values[i].canPlay) return values[i]
+            }
+            return null
+        }
+
+        function updateState() {
+            var p = findActive()
+            player = p
+            root.musicActive = (p !== null && p.isPlaying)
+
+            if (p && p.metadata) {
+                var url = p.metadata["xesam:url"] || ""
+                if (url && url !== root.lastTrackUrl) {
+                    root.lastTrackUrl = url
+                    coverProc.command = ["sh", root._dir + "find-cover.sh", url]
+                    coverProc.running = false
+                    coverProc.running = true
+                }
+            }
+        }
+    }
+
+    Connections {
+        target: Mpris.players
+        function onValuesChanged() { musicPlayer.updateState() }
+    }
+
+    Timer {
+        interval: 2000
+        running: true
+        repeat: true
+        onTriggered: musicPlayer.updateState()
+    }
+
+    IpcHandler {
+        target: "wallclock-control"
+        function toggleMusic(): void {
+            root.showingMusic = !root.showingMusic
+        }
+    }
+
+    // ─── System stats (bottom-center) ───
+
+    PanelWindow {
+        anchors { bottom: true; left: true; right: true }
+        exclusionMode: ExclusionMode.Ignore
+        color: "transparent"
+        implicitHeight: 120
+
+        WlrLayershell.layer: WlrLayer.Bottom
+
+        Row {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 20
+            spacing: 16
+
+            RingArc {
+                value: root.cpuTemp / 100
+                displayText: root.cpuTemp + "\u00B0"
+                label: "CPU"
+                arcColor: root.cpuTemp < 60 ? pywalColors.color4 : root.cpuTemp < 80 ? "#ffaa00" : "#ff4444"
+            }
+
+            RingArc {
+                value: root.gpuTemp / 100
+                displayText: root.gpuTemp + "\u00B0"
+                label: "GPU"
+                arcColor: root.gpuTemp < 60 ? pywalColors.color4 : root.gpuTemp < 80 ? "#ffaa00" : "#ff4444"
+            }
+
+            RingArc {
+                value: root.ramPercent / 100
+                displayText: root.ramPercent + "%"
+                label: "RAM"
+            }
+
+            RingArc {
+                value: root.diskPercent / 100
+                displayText: root.diskPercent + "%"
+                label: "DISK"
+            }
+        }
+    }
+
+    Timer {
+        id: pollTimer
+        interval: 3000
+        running: true
+        repeat: true
+        onTriggered: poller.running = true
+    }
+
+    Process {
+        id: poller
+        command: [root._dir + "stats.sh"]
+        running: false
+
+        stdout: StdioCollector {
+            waitForEnd: true
+            onStreamFinished: {
+                try {
+                    var data = JSON.parse(poller.stdout.text)
+                    root.cpuTemp = data.cpuTemp
+                    root.gpuTemp = data.gpuTemp
+                    root.ramPercent = data.ramPercent
+                    root.diskPercent = data.diskPercent
+                } catch (e) {}
+            }
+        }
+    }
+}

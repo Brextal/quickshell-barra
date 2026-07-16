@@ -3,6 +3,16 @@
 Panel flotante tipo isla para **Hyprland** con **Quickshell**.
 Estilo **vidrio empañado (glassmorphism)** — fondos blancos traslúcidos, bordes suaves, acentos dinámicos vía [pywal](https://github.com/dylanaraps/pywal).
 
+## Módulos
+
+| Módulo | Descripción |
+|---|---|
+| `barra/` | Panel flotante con workspaces, reloj, volumen, brillo, red, bluetooth y música |
+| `calendar/` | Calendario con pronóstico del tiempo |
+| `launcher/` | Lanzador de aplicaciones |
+| `wallclock/` | Reloj de pared con anillo animado y stats del sistema |
+| `shared/` | Módulo compartido (colores pywal) |
+
 ## Dependencias
 
 - [Quickshell](https://quickshell.outfoxxed.me/) (0.3.0+)
@@ -21,59 +31,43 @@ Estilo **vidrio empañado (glassmorphism)** — fondos blancos traslúcidos, bor
 ## Instalación
 
 ```bash
-git clone https://github.com/Brextal/quickshell-barra.git ~/.config/quickshell/barra
-ln -s ~/.config/quickshell/shared ~/.config/quickshell/barra/shared
+git clone https://github.com/Brextal/quickshell-barra.git ~/.config/quickshell
+```
+
+O usar el script de instalación:
+
+```bash
+bash ~/.config/quickshell/install.sh
 ```
 
 ## Configuración de Hyprland
 
-Para que el efecto **vidrio empañado** funcione correctamente, necesitás tener el blur habilitado en Hyprland.
-
-### Método rápido (recomendado)
-
-El repo incluye los archivos de configuración listos. Solo agregá al final de `~/.config/hypr/hyprland.conf`:
+Agregá al final de `~/.config/hypr/hyprland.conf`:
 
 ```conf
-source = ~/.config/quickshell/barra/hypr/lookandfeel.conf
 source = ~/.config/quickshell/barra/hypr/barra.conf
+source = ~/.config/quickshell/barra/hypr/lookandfeel.conf
+source = ~/.config/quickshell/calendar/hypr/calendar.conf
 ```
 
-### Método manual
+## Estructura
 
-Si preferís no usar `source`, copiá esto a tu configuración:
-
-**Blur optimizado** en tu `lookandfeel.conf` o `hyprland.conf`:
-
-```conf
-decoration {
-    blur {
-        enabled = true
-        size = 6
-        passes = 3
-        ignore_opacity = true
-        new_optimizations = on
-        vibrancy = 0.1696
-    }
-}
+```
+~/.config/quickshell/
+├── barra/          shell.qml, secciones, hypr/, reload.sh
+├── calendar/       shell.qml, CalendarStrip, hypr/, weather_fetch.sh
+├── launcher/       shell.qml, AppItem, LauncherPanel, demo/
+├── wallclock/      shell.qml, RingArc, stats.sh, find-cover.sh, cava-read.sh
+├── shared/         Pywal.qml
+├── install.sh
+└── README.md
 ```
 
-**Autostart y layerrules** en tu `hyprland.conf`:
+Los módulos comparten `shared/` mediante symlinks (`barra/shared -> ../shared`, etc.).
 
-```conf
-exec-once = qs -p ~/.config/quickshell/barra/shell.qml
+## Módulo barra
 
-layerrule = blur on, match:namespace quickshell
-layerrule = ignore_alpha 0, match:namespace quickshell
-```
-
-### Ajustar transparencia
-
-Si querés cambiar la intensidad del vidrio, modificá los valores alfa en `shell.qml`:
-- `#18ffffff` → fondo isla cerrada (más/menos transparente)
-- `#22ffffff` → fondo panel abierto
-- `#30ffffff` → bordes
-
-## Uso
+Panel principal con glassmorphism. Sections:
 
 | Acción | Resultado |
 |---|---|
@@ -82,9 +76,9 @@ Si querés cambiar la intensidad del vidrio, modificá los valores alfa en `shel
 | Escape | Cerrar panel |
 | Super + Escape | Toggle panel |
 | Click en un workspace | Cambia a ese workspace |
-| Click en ✕ | Cerrar panel |
+| Click en \u2715 | Cerrar panel |
 | Super + K | Toggle barra musical |
-| Click en ícono de carpeta `` | Seleccionar carpeta y reproducir con mpv |
+| Click en \uf07b | Seleccionar carpeta y reproducir con mpv |
 
 ### Secciones del panel
 
@@ -93,14 +87,11 @@ Si querés cambiar la intensidad del vidrio, modificá los valores alfa en `shel
 - **Brillo** — Slider de brillo
 - **Red** — Conexión actual, redes WiFi disponibles, conectar por contraseña
 - **Bluetooth** — Estado y alias del dispositivo
-
-### Barra musical
-
-Widget MPRIS con barras animadas y marquee infinito. Se activa con **Super + K** o automáticamente al seleccionar una carpeta con el ícono ``. Usa `mpv` para reproducir y `mpv-mpris` para exponer la metadata via MPRIS.
+- **Barra musical** — Widget MPRIS con barras animadas y marquee infinito (Super + K)
 
 ## Colores (glassmorphism)
 
-Los colores de acento se cargan automáticamente desde pywal (`color4`, `color5`, `foreground`, `background`). Los colores de fondo y bordes están en `shell.qml`:
+Los colores de acento se cargan automáticamente desde pywal (`color4`, `color5`, `foreground`, `background`).
 
 | Elemento | Color | Descripción |
 |---|---|---|
@@ -110,32 +101,14 @@ Los colores de acento se cargan automáticamente desde pywal (`color4`, `color5`
 | Acento | Pywal `color4` | Dinámico según tema |
 | Texto principal | Pywal `foreground` | Dinámico según tema |
 
-## Personalización
-
-Los colores de acento se sincronizan con pywal automáticamente. Para cambiar los colores de fondo, editá los valores hexadecimales en `shell.qml` y los archivos de sección.
-
-## Archivos
+## Archivos compartidos
 
 | Archivo | Descripción |
 |---|---|
-| `shell.qml` | Archivo principal, contiene la isla, spacer, anchos, animaciones |
-| `VolumeSection.qml` | Control de volumen con slider |
-| `BrightnessSection.qml` | Control de brillo con slider |
-| `NetworkSection.qml` | Estado de red, WiFi, conexión |
-| `BluetoothSection.qml` | Estado y alias de bluetooth |
-| `MusicWidget.qml` | Widget musical MPRIS con barras y marquee |
-| `reload.sh` | Script para recargar la configuración |
-| `hypr/lookandfeel.conf` | Blur optimizado para vidrio empañado |
-| `hypr/barra.conf` | Autostart y layerrules para Quickshell |
+| `shared/Pywal.qml` | Carga colores de pywal para todos los módulos |
 
 ## Recargar después de cambios
 
 ```bash
 ~/.config/quickshell/barra/reload.sh
-```
-
-O si el proceso no se está ejecutando:
-
-```bash
-quickshell ~/.config/quickshell/barra/shell.qml
 ```
